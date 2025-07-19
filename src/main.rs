@@ -1,5 +1,6 @@
 use clap::Parser;
 use scraper::{Html, Selector};
+use std::collections::HashSet;
 use std::process;
 use url::Url;
 
@@ -16,26 +17,30 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let base_url = Url::parse(&args.url)?;
 
-    // 標準エラー出力に、どのURLを取得しているか表示
     eprintln!("Fetching links from: {}", base_url);
 
     let response = reqwest::blocking::get(base_url.clone())?;
     let body = response.text()?;
 
     let document = Html::parse_document(&body);
-    // unwrap() をやめて、? でエラーを伝播させる
     let selector = Selector::parse("a[href]")
         .map_err(|e| format!("Failed to parse selector: {}", e))?;
 
-    // 最終的なリンクは標準出力へ
+    let mut unique_urls = HashSet::new();
+
     for element in document.select(&selector) {
         if let Some(href) = element.value().attr("href") {
-            match base_url.join(href) {
-                Ok(joined_url) => println!("{}", joined_url),
-                // 個別のリンク変換失敗は標準エラー出力に出すが、処理は続行
-                Err(e) => eprintln!("Could not join URL: '{}'. Error: {}", href, e),
+            if let Ok(mut joined_url) = base_url.join(href) {
+                // URLのフラグメント部分（#...）を削除
+                joined_url.set_fragment(None);
+                unique_urls.insert(joined_url);
             }
+            // 不正なURLは単に無視する
         }
+    }
+
+    for url in unique_urls {
+        println!("{}", url);
     }
 
     Ok(())
