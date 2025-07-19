@@ -3,6 +3,8 @@
 
 Get-Linkは、指定されたURLに含まれるリンク先を抽出するcliツールです。
 
+Gemini Code Assistを使用して作ってみたテストです。
+
 ## 使い方
 
 ```sh
