@@ -9,7 +9,6 @@ use url::Url;
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// The URL to extract links from.
-    #[arg(short, long)]
     url: String,
 
     /// Sort the output URLs alphabetically.
