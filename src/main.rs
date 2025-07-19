@@ -9,8 +9,16 @@ struct Args {
     url: String,
 }
 
-fn main() {
+fn main() -> Result<(), reqwest::Error> {
     let args = Args::parse();
 
-    println!("URL: {}", args.url);
+    println!("Fetching links from: {}", args.url);
+
+    let response = reqwest::blocking::get(args.url)?;
+    let body = response.text()?;
+
+    println!("\nResponse Body:\n");
+    println!("{}", body);
+
+    Ok(())
 }
