@@ -1,4 +1,5 @@
 use clap::Parser;
+use scraper::{Html, Selector};
 
 /// 指定されたURLからリンクを抽出するCLIツール
 #[derive(Parser, Debug)]
@@ -14,11 +15,19 @@ fn main() -> Result<(), reqwest::Error> {
 
     println!("Fetching links from: {}", args.url);
 
-    let response = reqwest::blocking::get(args.url)?;
+    let response = reqwest::blocking::get(&args.url)?;
     let body = response.text()?;
 
-    println!("\nResponse Body:\n");
-    println!("{}", body);
+    let document = Html::parse_document(&body);
+    let selector = Selector::parse("a[href]").unwrap();
+
+    println!("\nFound links:\n");
+
+    for element in document.select(&selector) {
+        if let Some(href) = element.value().attr("href") {
+            println!("{}", href);
+        }
+    }
 
     Ok(())
 }
