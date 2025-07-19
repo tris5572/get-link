@@ -11,6 +11,10 @@ struct Args {
     /// The URL to extract links from.
     #[arg(short, long)]
     url: String,
+
+    /// Sort the output URLs alphabetically.
+    #[arg(long)]
+    sort: bool,
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -35,13 +39,16 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 let mut url_without_fragment = original_url.clone();
                 url_without_fragment.set_fragment(None);
 
-                // HashSetへの追加が成功した場合（= まだ見ていないURLの場合）
                 if seen_urls.insert(url_without_fragment) {
-                    // 順序を保持するVecに元のURLを追加
                     unique_urls_in_order.push(original_url);
                 }
             }
         }
+    }
+
+    // --sort オプションが指定されていたら、ソートする
+    if args.sort {
+        unique_urls_in_order.sort_by(|a, b| a.as_str().cmp(b.as_str()));
     }
 
     for url in unique_urls_in_order {
