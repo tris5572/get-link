@@ -14,6 +14,10 @@ struct Args {
     /// Sort the output URLs alphabetically.
     #[arg(long)]
     sort: bool,
+
+    /// Reverse the order of the output.
+    #[arg(short, long)]
+    reverse: bool,
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -48,6 +52,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     // --sort オプションが指定されていたら、ソートする
     if args.sort {
         unique_urls_in_order.sort_by(|a, b| a.as_str().cmp(b.as_str()));
+    }
+
+    // --reverse オプションが指定されていたら、順序を逆にする
+    if args.reverse {
+        unique_urls_in_order.reverse();
     }
 
     for url in unique_urls_in_order {
