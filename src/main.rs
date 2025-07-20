@@ -62,7 +62,7 @@ fn extract_and_process_links(
 ) -> Result<Vec<Url>, Box<dyn std::error::Error>> {
     let document = Html::parse_document(html_content);
     let selector = Selector::parse("a[href]")
-        .map_err(|e| format!("Failed to parse selector: {}"))?;
+        .map_err(|e| format!("Failed to parse selector: {}", e))?;
 
     let mut unique_urls_in_order = Vec::new();
     let mut seen_urls = HashSet::new();
