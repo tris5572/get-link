@@ -1,9 +1,9 @@
 
-# Get-Link
+# get-link
 
-Get-Linkは、指定されたURLに含まれるリンク先を抽出するcliツールです。
+get-linkは、指定されたURLに含まれるリンク先を抽出するRust製のcliツールです。
 
-Gemini Code Assistを使用して作ってみたテストです。
+Gemini Code Assist（Agent Mode）とGemini CLIを使用して作ってみたもので、これらの使い勝手やどれくらいのものを作れるかを試してみたテストです。
 
 ## インストール
 
