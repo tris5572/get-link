@@ -28,6 +28,8 @@ struct Args {
     external: bool,
 }
 
+/// Main logic for the get-link application.
+/// Parses arguments, fetches the URL, extracts and processes links, and prints them.
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
@@ -51,6 +53,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// Extracts and processes links from HTML content.
+/// Filters, sorts, and de-duplicates links based on provided arguments.
 fn extract_and_process_links(
     html_content: &str,
     base_url: &Url,
@@ -58,7 +62,7 @@ fn extract_and_process_links(
 ) -> Result<Vec<Url>, Box<dyn std::error::Error>> {
     let document = Html::parse_document(html_content);
     let selector = Selector::parse("a[href]")
-        .map_err(|e| format!("Failed to parse selector: {}", e))?;
+        .map_err(|e| format!("Failed to parse selector: {}"))?;
 
     let mut unique_urls_in_order = Vec::new();
     let mut seen_urls = HashSet::new();
@@ -88,12 +92,12 @@ fn extract_and_process_links(
         }
     }
 
-    // --sort オプションが指定されていたら、ソートする
+    // Sort the URLs if the --sort option is specified.
     if args.sort {
         unique_urls_in_order.sort_by(|a, b| a.as_str().cmp(b.as_str()));
     }
 
-    // --reverse オプションが指定されていたら、順序を逆にする
+    // Reverse the order of the URLs if the --reverse option is specified.
     if args.reverse {
         unique_urls_in_order.reverse();
     }
@@ -101,6 +105,8 @@ fn extract_and_process_links(
     Ok(unique_urls_in_order)
 }
 
+/// Entry point of the application.
+/// Calls the `run` function and handles any errors.
 fn main() {
     if let Err(e) = run() {
         eprintln!("Error: {}", e);
