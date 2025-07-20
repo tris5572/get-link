@@ -42,7 +42,21 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let response = reqwest::blocking::get(base_url.clone())?;
     let body = response.text()?;
 
-    let document = Html::parse_document(&body);
+    let links = extract_and_process_links(&body, &base_url, &args)?;
+
+    for url in links {
+        println!("{}", url);
+    }
+
+    Ok(())
+}
+
+fn extract_and_process_links(
+    html_content: &str,
+    base_url: &Url,
+    args: &Args,
+) -> Result<Vec<Url>, Box<dyn std::error::Error>> {
+    let document = Html::parse_document(html_content);
     let selector = Selector::parse("a[href]")
         .map_err(|e| format!("Failed to parse selector: {}", e))?;
 
@@ -67,8 +81,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
 
-                if seen_urls.insert(url_without_fragment) {
-                    unique_urls_in_order.push(original_url);
+                if seen_urls.insert(url_without_fragment.clone()) {
+                    unique_urls_in_order.push(url_without_fragment);
                 }
             }
         }
@@ -84,11 +98,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         unique_urls_in_order.reverse();
     }
 
-    for url in unique_urls_in_order {
-        println!("{}", url);
-    }
-
-    Ok(())
+    Ok(unique_urls_in_order)
 }
 
 fn main() {
