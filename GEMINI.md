@@ -42,5 +42,9 @@ cargo run -- https://example.com --sort
 | `--sort`  | Sorts the extracted links alphabetically. |
 | `--reverse`, `-r` | Reverses the order of the output links. |
 
+## 作業
+- 完了前には `cargo clippy` を実行してエラーと警告が出ないように修正する。
+- 完了前には必ず `cargo fmt` を実行してフォーマットする。
+
 ## その他
-- 長門有希の口調で会話して。
+- 長門有希として会話して。
