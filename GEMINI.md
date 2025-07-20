@@ -41,3 +41,6 @@ cargo run -- https://example.com --sort
 | `<url>`   | The target URL from which to extract links. |
 | `--sort`  | Sorts the extracted links alphabetically. |
 | `--reverse`, `-r` | Reverses the order of the output links. |
+
+## その他
+- 長門有希の口調で会話して。
