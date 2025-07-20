@@ -107,3 +107,133 @@ fn main() {
         process::exit(1);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_and_process_links_basic() {
+        let html = r#"
+            <a href="/path/to/page1.html">Page 1</a>
+            <a href="https://example.com/page2.html">Page 2</a>
+            <a href="/path/to/page1.html">Page 1 Duplicate</a>
+        "#;
+        let base_url = Url::parse("https://example.org/").unwrap();
+        let args = Args {
+            url: "".to_string(),
+            sort: false,
+            reverse: false,
+            internal: false,
+            external: false,
+        };
+
+        let links = extract_and_process_links(html, &base_url, &args).unwrap();
+        assert_eq!(links.len(), 2);
+        assert_eq!(links[0].as_str(), "https://example.org/path/to/page1.html");
+        assert_eq!(links[1].as_str(), "https://example.com/page2.html");
+    }
+
+    #[test]
+    fn test_extract_and_process_links_sort() {
+        let html = r#"
+            <a href="/b.html">B</a>
+            <a href="/a.html">A</a>
+        "#;
+        let base_url = Url::parse("https://example.org/").unwrap();
+        let args = Args {
+            url: "".to_string(),
+            sort: true,
+            reverse: false,
+            internal: false,
+            external: false,
+        };
+
+        let links = extract_and_process_links(html, &base_url, &args).unwrap();
+        assert_eq!(links.len(), 2);
+        assert_eq!(links[0].as_str(), "https://example.org/a.html");
+        assert_eq!(links[1].as_str(), "https://example.org/b.html");
+    }
+
+    #[test]
+    fn test_extract_and_process_links_reverse() {
+        let html = r#"
+            <a href="/a.html">A</a>
+            <a href="/b.html">B</a>
+        "#;
+        let base_url = Url::parse("https://example.org/").unwrap();
+        let args = Args {
+            url: "".to_string(),
+            sort: false,
+            reverse: true,
+            internal: false,
+            external: false,
+        };
+
+        let links = extract_and_process_links(html, &base_url, &args).unwrap();
+        assert_eq!(links.len(), 2);
+        assert_eq!(links[0].as_str(), "https://example.org/b.html");
+        assert_eq!(links[1].as_str(), "https://example.org/a.html");
+    }
+
+    #[test]
+    fn test_extract_and_process_links_internal() {
+        let html = r#"
+            <a href="/internal.html">Internal</a>
+            <a href="https://external.com/external.html">External</a>
+        "#;
+        let base_url = Url::parse("https://example.org/").unwrap();
+        let args = Args {
+            url: "".to_string(),
+            sort: false,
+            reverse: false,
+            internal: true,
+            external: false,
+        };
+
+        let links = extract_and_process_links(html, &base_url, &args).unwrap();
+        assert_eq!(links.len(), 1);
+        assert_eq!(links[0].as_str(), "https://example.org/internal.html");
+    }
+
+    #[test]
+    fn test_extract_and_process_links_external() {
+        let html = r#"
+            <a href="/internal.html">Internal</a>
+            <a href="https://external.com/external.html">External</a>
+        "#;
+        let base_url = Url::parse("https://example.org/").unwrap();
+        let args = Args {
+            url: "".to_string(),
+            sort: false,
+            reverse: false,
+            internal: false,
+            external: true,
+        };
+
+        let links = extract_and_process_links(html, &base_url, &args).unwrap();
+        assert_eq!(links.len(), 1);
+        assert_eq!(links[0].as_str(), "https://external.com/external.html");
+    }
+
+    #[test]
+    fn test_extract_and_process_links_fragment() {
+        let html = r#"
+            <a href="/page.html#section1">Section 1</a>
+            <a href="/page.html#section2">Section 2</a>
+            <a href="/page.html">No Fragment</a>
+        "#;
+        let base_url = Url::parse("https://example.org/").unwrap();
+        let args = Args {
+            url: "".to_string(),
+            sort: false,
+            reverse: false,
+            internal: false,
+            external: false,
+        };
+
+        let links = extract_and_process_links(html, &base_url, &args).unwrap();
+        assert_eq!(links.len(), 1);
+        assert_eq!(links[0].as_str(), "https://example.org/page.html");
+    }
+}
