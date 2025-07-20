@@ -39,7 +39,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     let base_url = Url::parse(&args.url)?;
 
-    eprintln!("Fetching links from: {}", base_url);
+    eprintln!("Fetching links from: {base_url}");
 
     let response = reqwest::blocking::get(base_url.clone())?;
     let body = response.text()?;
@@ -47,7 +47,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let links = extract_and_process_links(&body, &base_url, &args)?;
 
     for url in links {
-        println!("{}", url);
+        println!("{url}");
     }
 
     Ok(())
@@ -61,8 +61,8 @@ fn extract_and_process_links(
     args: &Args,
 ) -> Result<Vec<Url>, Box<dyn std::error::Error>> {
     let document = Html::parse_document(html_content);
-    let selector = Selector::parse("a[href]")
-        .map_err(|e| format!("Failed to parse selector: {}", e))?;
+    let selector =
+        Selector::parse("a[href]").map_err(|e| format!("Failed to parse selector: {e}"))?;
 
     let mut unique_urls_in_order = Vec::new();
     let mut seen_urls = HashSet::new();
@@ -73,16 +73,12 @@ fn extract_and_process_links(
                 let mut url_without_fragment = original_url.clone();
                 url_without_fragment.set_fragment(None);
 
-                if args.internal {
-                    if url_without_fragment.origin() != base_url.origin() {
-                        continue;
-                    }
+                if args.internal && url_without_fragment.origin() != base_url.origin() {
+                    continue;
                 }
 
-                if args.external {
-                    if url_without_fragment.origin() == base_url.origin() {
-                        continue;
-                    }
+                if args.external && url_without_fragment.origin() == base_url.origin() {
+                    continue;
                 }
 
                 if seen_urls.insert(url_without_fragment.clone()) {
@@ -109,7 +105,7 @@ fn extract_and_process_links(
 /// Calls the `run` function and handles any errors.
 fn main() {
     if let Err(e) = run() {
-        eprintln!("Error: {}", e);
+        eprintln!("Error: {e}");
         process::exit(1);
     }
 }
