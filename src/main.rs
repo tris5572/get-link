@@ -22,10 +22,19 @@ struct Args {
     /// Extract only internal links.
     #[arg(short, long)]
     internal: bool,
+
+    /// Extract only external links.
+    #[arg(short, long)]
+    external: bool,
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
+
+    if args.internal && args.external {
+        return Err("Cannot use --internal and --external flags simultaneously".into());
+    }
+
     let base_url = Url::parse(&args.url)?;
 
     eprintln!("Fetching links from: {}", base_url);
@@ -48,6 +57,12 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
                 if args.internal {
                     if url_without_fragment.origin() != base_url.origin() {
+                        continue;
+                    }
+                }
+
+                if args.external {
+                    if url_without_fragment.origin() == base_url.origin() {
                         continue;
                     }
                 }
