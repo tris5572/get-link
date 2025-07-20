@@ -18,6 +18,10 @@ struct Args {
     /// Reverse the order of the output.
     #[arg(short, long)]
     reverse: bool,
+
+    /// Extract only internal links.
+    #[arg(short, long)]
+    internal: bool,
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -41,6 +45,12 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             if let Ok(original_url) = base_url.join(href) {
                 let mut url_without_fragment = original_url.clone();
                 url_without_fragment.set_fragment(None);
+
+                if args.internal {
+                    if url_without_fragment.origin() != base_url.origin() {
+                        continue;
+                    }
+                }
 
                 if seen_urls.insert(url_without_fragment) {
                     unique_urls_in_order.push(original_url);
